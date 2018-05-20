@@ -16,7 +16,8 @@ var final = function(status,value){
         queue = promise[st ? '_resolves' : '_rejects'];
 
         while(fn = queue.shift()) {
-            value = fn.call(promise, value) || value;
+            
+            value = (typeof fn === 'function' ? fn.call(promise, value) : '') || value;
         }
 
         promise[st ? '_value' : '_reason'] = value;
@@ -82,9 +83,9 @@ Promise.prototype.then = function(onFulfilled,onRejected){
         if(promise._status === 'PENDING'){
             promise._resolves.push(handle);
             promise._rejects.push(errback);
-        }else if(promise._status === FULFILLED){ // 状态改变后的then操作，立刻执行
-            callback(promise._value);
-        }else if(promise._status === REJECTED){
+        }else if(promise._status === 'FULFILLED'){ // 状态改变后的then操作，立刻执行
+            handle(promise._value);
+        }else if(promise._status === 'REJECTED'){
             errback(promise._reason);
         }
     });
